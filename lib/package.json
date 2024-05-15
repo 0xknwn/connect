@@ -1,7 +1,7 @@
 {
   "name": "@0xknwn/connect",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "module": "./src/index.js",
   "types": "./dist/index.d.ts",
@@ -19,6 +19,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
+    "@types/postmate": "^1.5.4",
+    "postmate": "^1.5.2",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }
