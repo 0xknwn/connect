@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   build: {
     emptyOutDir: false,
     lib: {
@@ -13,5 +13,8 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    "process.env.NODE_ENV": JSON.stringify(mode),
+  },
   plugins: [],
-});
+}));

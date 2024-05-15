@@ -1,7 +1,7 @@
 {
   "name": "@0xknwn/connect",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.7",
   "type": "module",
   "module": "./src/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --mode development",
     "preview": "vite preview"
   },
   "devDependencies": {
