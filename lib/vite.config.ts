@@ -1,5 +1,6 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
 
 export default defineConfig(({ mode }) => ({
   build: {
@@ -16,5 +17,9 @@ export default defineConfig(({ mode }) => ({
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),
   },
-  plugins: [],
+  plugins: [
+    dts({
+      insertTypesEntry: true,
+    }),
+  ],
 }));
