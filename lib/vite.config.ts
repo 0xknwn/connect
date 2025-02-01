@@ -3,14 +3,6 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig(({ mode }) => ({
-  server: {
-    proxy: {
-      "/message": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-      },
-    },
-  },
   build: {
     emptyOutDir: false,
     lib: {
