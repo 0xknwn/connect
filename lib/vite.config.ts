@@ -1,6 +1,7 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => ({
   build: {
@@ -21,5 +22,6 @@ export default defineConfig(({ mode }) => ({
     dts({
       insertTypesEntry: true,
     }),
+    react(),
   ],
 }));
