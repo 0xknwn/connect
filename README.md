@@ -1,2 +1,3 @@
-# connect
-A library and an app to exchange messages with a remote client
+# @0xknwn/connect
+
+A library to exchange messages with @0xknwn/signer

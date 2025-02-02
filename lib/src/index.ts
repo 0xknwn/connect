@@ -1,6 +1,7 @@
 export {};
 
 import { injectIFrame } from "./postmate";
+import { injectUI } from "./ui";
 
 declare global {
   interface Window {
@@ -74,3 +75,4 @@ export const injectSmartr = async () => {
 };
 
 injectSmartr();
+injectUI();
