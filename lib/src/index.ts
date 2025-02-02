@@ -13,27 +13,36 @@ class StarknetWindowObject {
     return "0x1234567890";
   };
 
-  sendTransaction: (
+  sendMessage: (
+    application: string,
+    domain: string,
     contractAddress: string,
     entrypoint: string,
-    calldata: string
+    calldata: string[]
   ) => Promise<void> = async (
+    application: string,
+    domain: string,
     contractAddress: string,
     entrypoint: string,
-    calldata: string
+    calldata: string[]
   ) => {
     const response = await fetch("/message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify([
-        {
-          contractAddress,
-          entrypoint,
-          calldata,
-        },
-      ]),
+      body: JSON.stringify({
+        calls: [
+          {
+            contractAddress,
+            entrypoint,
+            calldata,
+          },
+        ],
+        type: "request",
+        application,
+        domain,
+      }),
     });
     console.log(
       "sending transaction to /message",
