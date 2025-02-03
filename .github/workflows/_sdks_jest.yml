@@ -30,7 +30,8 @@ jobs:
 
       - name: build the project
         run: |
-          npm run build -ws
+          npm run build -w @0xknwn/connect-ui
+          npm run build -w @0xknwn/connect-core
 
       - name: Run vitest tests
         run: npm run test -w ${{ inputs.workspace }}
