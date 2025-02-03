@@ -29,7 +29,9 @@ jobs:
           npm ci --ignore-scripts -ws
 
       - name: build the project
-        run: npm run build -ws
+        run: |
+          npm run build -w 0xknwn/connect-ui
+          npm run build -w 0xknwn/connect-core
 
       - name: Run vitest tests
         run: npm run test -w ${{ inputs.workspace }}
