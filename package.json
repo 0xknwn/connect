@@ -1,0 +1,24 @@
+{
+  "name": "@0xknwn/connect",
+  "private": false,
+  "version": "0.0.11",
+  "description": "Connect Dapps to the 0xknwn/signer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xknwn/connect.git"
+  },
+  "author": "0xknwn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/0xknwn/connect/issues"
+  },
+  "homepage": "https://github.com/0xknwn/connect#readme",
+  "workspaces": [
+    "packages/lib",
+    "packages/ui"
+  ]
+}

@@ -18,4 +18,4 @@ jobs:
   test:
     uses: ./.github/workflows/_sdks_jest.yml
     with:
-      workdir: ./lib
+      workspace: "@0xknwn/connect-core"
