@@ -1,0 +1,39 @@
+name: _ Reusable Typescript/Jest Workflow for SDKs
+
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ inputs.workspace }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install npm dependencies
+        working-directory: ${{ inputs.workdir }}
+        run: |
+          npm ci --ignore-scripts
+
+      - name: build the project
+        working-directory: ${{ inputs.workdir }}
+        run: npm run build
+
+      - name: Run vitest tests
+        working-directory: ${{ inputs.workdir }}
+        run: npm run test
