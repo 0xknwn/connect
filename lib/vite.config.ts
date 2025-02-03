@@ -1,5 +1,5 @@
 import { resolve } from "path";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 import react from "@vitejs/plugin-react";
 
@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => ({
         return `index.${format.toString() === "es" ? "js" : "umd.js"}`;
       },
     },
+  },
+  test: {
+    environment: "jsdom",
   },
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),

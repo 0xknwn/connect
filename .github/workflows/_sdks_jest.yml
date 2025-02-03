@@ -28,7 +28,6 @@ jobs:
       - name: Install npm dependencies
         working-directory: ${{ inputs.workdir }}
         run: |
-          pwd
           npm ci --ignore-scripts
 
       - name: build the project
