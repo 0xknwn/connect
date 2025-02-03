@@ -25,13 +25,12 @@ jobs:
           cache: "npm"
 
       - name: Install npm dependencies
-        working-directory: ${{ inputs.workdir }}
         run: |
-          npm ci --ignore-scripts
+          npm ci --ignore-scripts -ws
 
       - name: build the project
 
-        run: npm run build --workspace ${{ inputs.workspace }}
+        run: npm run build -w ${{ inputs.workspace }}
 
       - name: Run vitest tests
-        run: npm run test --workspace ${{ inputs.workspace }}
+        run: npm run test -w ${{ inputs.workspace }}
