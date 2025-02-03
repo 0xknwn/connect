@@ -1,6 +1,5 @@
 export {};
 
-import { injectIFrame } from "./postmate";
 import { injectUI } from "./ui";
 
 declare global {
@@ -57,7 +56,6 @@ class StarknetWindowObject {
   injectSmartr: (elementId: string) => Promise<void> = async (
     elementId: string
   ) => {
-    injectIFrame(elementId);
     console.log("injecting smartr on", elementId);
   };
 }
