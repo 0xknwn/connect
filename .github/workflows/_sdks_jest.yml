@@ -3,7 +3,7 @@ name: _ Reusable Typescript/Jest Workflow for SDKs
 on:
   workflow_call:
     inputs:
-      workdir:
+      workspace:
         required: true
         type: string
 
@@ -23,7 +23,6 @@ jobs:
         with:
           node-version: "22.x"
           cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
 
       - name: Install npm dependencies
         working-directory: ${{ inputs.workdir }}
@@ -31,9 +30,8 @@ jobs:
           npm ci --ignore-scripts
 
       - name: build the project
-        working-directory: ${{ inputs.workdir }}
-        run: npm run build
+
+        run: npm run build --workspace ${{ inputs.workspace }}
 
       - name: Run vitest tests
-        working-directory: ${{ inputs.workdir }}
-        run: npm run test
+        run: npm run test --workspace ${{ inputs.workspace }}
