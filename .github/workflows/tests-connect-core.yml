@@ -1,4 +1,4 @@
-name: tests connect
+name: tests connect-core
 on:
   pull_request:
     branches:
