@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import loadkeys from "./loadkeys";
-import { submitChannelRequest, channelRequestID } from "../../src";
+import {
+  submitChannelRequest,
+  channelRequestID,
+  acknowledgeChannelRequest,
+  acknowledgeChannelRequestResult,
+} from "../../src";
 
 describe("interacts with API", () => {
   const sixdigitpin = "000000";
@@ -61,5 +66,24 @@ describe("interacts with API", () => {
     const unixtimestamp = Math.floor(Date.now() / 1000);
     expect(payload.result.deadline).toBeGreaterThan(unixtimestamp + 895);
     expect(payload.result.deadline).toBeLessThanOrEqual(unixtimestamp + 905);
+  });
+
+  it("acknowlege channel request", async () => {
+    const channelRequestUniqueKeys = await channelRequestID(sixdigitpin);
+    const response = await acknowledgeChannelRequest(1, {
+      channelRequestUniqueKeys,
+    });
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload?.result).toBeTruthy();
+    const result: acknowledgeChannelRequestResult = payload.result;
+    const unixtimestamp = Math.floor(Date.now() / 1000);
+    expect(result.deadline).toBeGreaterThan(unixtimestamp + 895);
+    expect(result.deadline).toBeLessThanOrEqual(unixtimestamp + 905);
+    expect(result.relyingParty).toBe("http://example.com");
+    expect(result.agentAccountAddress).toBe(agentAccountAddress);
+    expect(result.agentPublicKey).toBe(hexAgentPublicKey);
+    expect(result.agentEncryptionPublicKey).toBe(hexAgentEncryptionPublicKey);
+    expect(result.signerAccountID).toBe(signerAccountID);
   });
 });

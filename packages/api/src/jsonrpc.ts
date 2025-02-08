@@ -1,4 +1,11 @@
-import { submitChannelRequestParams } from "./submit_channel_request";
+import {
+  submitChannelRequestParams,
+  submitChannelRequestResult,
+} from "./submit_channel_request";
+import {
+  acknowledgeChannelRequestParams,
+  acknowledgeChannelRequestResult,
+} from "./acknowledge_channel_request";
 
 export enum jsonRpcMethod {
   SmartrMethodSubmitChannelRequest = "smartr_submitChannelRequest",
@@ -9,28 +16,22 @@ export enum jsonRpcMethod {
   SmartrMethodQueryMessages = "smartr_queryMessages",
 }
 
-type jsonRpc = {
+export type jsonRpcRequest = {
   jsonrpc: string;
   method: jsonRpcMethod;
-  params: submitChannelRequestParams;
+  params: submitChannelRequestParams | acknowledgeChannelRequestParams;
   id: number;
 };
 
-export const submitChannelRequest = async (
-  id: number,
-  params: submitChannelRequestParams
-): Promise<Response> => {
-  const response = await fetch(import.meta.env.VITE_API_BASE_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      method: jsonRpcMethod.SmartrMethodSubmitChannelRequest,
-      params: params,
-      id,
-    } as jsonRpc),
-  });
-  return response;
+export type RpcError = {
+  code: number;
+  message: string;
+  data?: any;
+};
+
+export type jsonRpcResponse = {
+  jsonrpc: string;
+  result?: submitChannelRequestResult | acknowledgeChannelRequestResult;
+  error?: RpcError;
+  id: number;
 };

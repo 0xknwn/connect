@@ -1,4 +1,6 @@
 import { buf2hex } from "./utils";
+import { jsonRpcMethod } from "./jsonrpc";
+import type { jsonRpcRequest } from "./jsonrpc";
 
 export type submitChannelRequestParams = {
   relyingParty: string;
@@ -8,6 +10,11 @@ export type submitChannelRequestParams = {
   signerAccountID: string;
   channelRequestUniqueKeys: string[];
   ttl?: number;
+};
+
+export type submitChannelRequestResult = {
+  apiUniqueKeys?: string[];
+  deadline: number;
 };
 
 export const channelRequestID = async (key: string) => {
@@ -46,4 +53,23 @@ export const channelRequestID = async (key: string) => {
   );
 
   return [buf2hex(key1), buf2hex(key2)];
+};
+
+export const submitChannelRequest = async (
+  id: number,
+  params: submitChannelRequestParams
+): Promise<Response> => {
+  const response = await fetch(import.meta.env.VITE_API_BASE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: jsonRpcMethod.SmartrMethodSubmitChannelRequest,
+      params: params,
+      id,
+    } as jsonRpcRequest),
+  });
+  return response;
 };
