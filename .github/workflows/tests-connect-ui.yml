@@ -2,14 +2,14 @@ name: tests connect-ui
 on:
   pull_request:
     branches:
-      - '**'
+      - "**"
     paths:
-      - '**'
+      - "**"
   push:
     branches:
-      - 'develop'
+      - "develop"
     paths:
-      - '**'
+      - "**"
 
 permissions:
   contents: read
