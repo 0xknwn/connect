@@ -1,6 +1,5 @@
-export {};
-
 import { injectUI } from "./ui";
+export { injectUI };
 
 declare global {
   interface Window {
@@ -73,4 +72,3 @@ export const injectSmartr = async () => {
 };
 
 injectSmartr();
-injectUI();
