@@ -1,0 +1,21 @@
+name: tests connect-ui
+on:
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - "**"
+  push:
+    branches:
+      - "develop"
+    paths:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/_sdks_jest.yml
+    with:
+      workspace: "@0xknwn/connect-api"

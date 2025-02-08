@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/0xknwn/connect#readme",
   "workspaces": [
+    "packages/api",
     "packages/lib",
     "packages/ui"
   ]
