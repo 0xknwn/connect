@@ -1,15 +1,12 @@
 {
   "name": "yasager",
-  "private": true,
   "version": "0.0.1",
-  "type": "module",
+  "main": "src/index.ts",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "start": "tsc --build && node ./dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "typescript": "~5.7.2",
-    "vite": "^6.1.0"
-  }
+  "author": "0xknwn",
+  "license": "MIT",
+  "description": ""
 }
