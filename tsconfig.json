@@ -1,8 +1,10 @@
 {
   "files": [],
   "references": [
+    { "path": "packages/app" },
     { "path": "packages/api" },
     { "path": "packages/lib" },
-    { "path": "packages/ui" }
+    { "path": "packages/ui" },
+    { "path": "packages/yasager" }
   ]
 }
