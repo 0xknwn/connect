@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/0xknwn/connect#readme",
   "workspaces": [
+    "packages/app",
     "packages/api",
     "packages/lib",
-    "packages/ui"
+    "packages/ui",
+    "packages/yasager"
   ]
 }
