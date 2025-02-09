@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { buf2hex, hex2buf } from "../../src";
+import { buf2hex, hex2buf } from "../../lib";
 
 describe("channel request", () => {
   let AgentKeyPair: CryptoKeyPair;

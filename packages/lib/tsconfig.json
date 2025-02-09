@@ -24,6 +24,7 @@
   "include": ["src"],
   "references": [
     { "path": "../ui" },
+    { "path": "../api" },
     { "path": "./tsconfig.node.json" },
   ]
 }
