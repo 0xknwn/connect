@@ -1,7 +1,8 @@
-const world = "world";
+import { ask6DigitPin } from "./input";
 
-export function hello(who: string = world): string {
-  return `Hello ${who}! `;
-}
+const main = async () => {
+  const pin = await ask6DigitPin();
+  console.log(pin);
+};
 
-console.log(hello(world));
+main();
