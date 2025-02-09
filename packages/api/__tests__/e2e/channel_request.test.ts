@@ -6,9 +6,11 @@ import {
   acknowledgeChannelRequest,
   acknowledgeChannelRequestResult,
   acceptChannel,
-  acceptChannelParams,
   acceptChannelResult,
+  acknowledgeChannel,
+  acknowledgeChannelResult,
   encryptAndSign,
+  decryptAndVerify,
   acceptChannelID,
   generateChannelID,
 } from "../../src";
@@ -126,6 +128,34 @@ describe("interacts with API", () => {
     expect(response.status).toBe(200);
     const payload = await response.json();
     expect(payload?.result).toBeTruthy();
-    const result: acceptChannelResult = payload.result;
+  });
+
+  it("acknowledge channel", async () => {
+    const acceptChannelUniqueKeys = await acceptChannelID(
+      sixdigitpin,
+      fourdigitpin,
+      relyingParty,
+      signerAccountID,
+      deadline
+    );
+
+    const response = await acknowledgeChannel(1, {
+      acceptChannelUniqueKeys,
+    });
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload?.result).toBeTruthy();
+    const result: acknowledgeChannelResult = payload.result;
+    expect(result.signerPublicKey).toBe(hexSignerPublicKey);
+    expect(result.signerEncryptionPublicKey).toBe(hexSignerEncryptionPublicKey);
+    expect(result.signerAccountAddress).toBe(signerAccountAddress);
+    const { message, verified } = await decryptAndVerify(
+      encryptionKey,
+      SignerKeyPair.publicKey,
+      result.encryptedChannelIdentifier,
+      result.channelIdentifierSignature
+    );
+    expect(message).toBe(channelID);
+    expect(verified).toBe(true);
   });
 });

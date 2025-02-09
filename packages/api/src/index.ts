@@ -20,15 +20,23 @@ import {
   acceptChannelID,
   encryptAndSign,
 } from "./accept_channel";
-import { importPublicKey } from "./acknowledge_channel";
+import {
+  decryptAndVerify,
+  importPublicKey,
+  acknowledgeChannel,
+  acknowledgeChannelParams,
+  acknowledgeChannelResult,
+} from "./acknowledge_channel";
 import { buf2hex, hex2buf } from "./utils";
 
 export {
   acceptChannel,
   acknowledgeChannelRequest,
+  acknowledgeChannel,
   buf2hex,
   acceptChannelID,
   channelRequestID,
+  decryptAndVerify,
   encryptAndSign,
   generateEncryptionKey,
   generateChannelID,
@@ -45,4 +53,6 @@ export type {
   acknowledgeChannelRequestResult,
   acceptChannelParams,
   acceptChannelResult,
+  acknowledgeChannelParams,
+  acknowledgeChannelResult,
 };
