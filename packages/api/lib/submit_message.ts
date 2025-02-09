@@ -1,6 +1,7 @@
 import { buf2hex } from "./utils";
 import { jsonRpcMethod } from "./jsonrpc";
 import type { jsonRpcRequest } from "./jsonrpc";
+import { subtle } from "./subtle";
 
 export type submitMessageParams = {
   channelUniqueKeys: string[];
@@ -12,7 +13,7 @@ export type submitMessageParams = {
 export type submitMessageResult = {};
 
 export const sign = async (signingKey: CryptoKey, message: string) => {
-  const signature = await window.crypto.subtle.sign(
+  const signature = await subtle.sign(
     {
       name: "ECDSA",
       hash: { name: "SHA-256" },
@@ -26,7 +27,7 @@ export const sign = async (signingKey: CryptoKey, message: string) => {
 export const channelUniqueKeys = async (relyingParty: string, key: string) => {
   const enc = new TextEncoder();
   const root = enc.encode(`${key}`);
-  const material = await window.crypto.subtle.importKey(
+  const material = await subtle.importKey(
     "raw",
     root,
     "HKDF",
@@ -35,7 +36,7 @@ export const channelUniqueKeys = async (relyingParty: string, key: string) => {
   );
   const unixtimestamp = Math.floor(Date.now() / 30000) * 30;
 
-  const output1 = await window.crypto.subtle.deriveBits(
+  const output1 = await subtle.deriveBits(
     {
       name: "HKDF",
       salt: enc.encode(String(unixtimestamp)),
@@ -46,7 +47,7 @@ export const channelUniqueKeys = async (relyingParty: string, key: string) => {
     256
   );
 
-  const output2 = await window.crypto.subtle.deriveBits(
+  const output2 = await subtle.deriveBits(
     {
       name: "HKDF",
       salt: enc.encode(String(unixtimestamp)),

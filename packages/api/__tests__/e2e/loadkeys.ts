@@ -4,11 +4,12 @@ import {
   importPublicKey,
   importEncryptionPublicKey,
 } from "../../lib";
+import { subtle } from "../../lib/subtle";
 
 const importEncryptionPrivateKey = async (
   EncryptionPkcs8PrivateKey: string
 ) => {
-  const encryptionKey = await window.crypto.subtle.importKey(
+  const encryptionKey = await subtle.importKey(
     "pkcs8",
     hex2buf(EncryptionPkcs8PrivateKey),
     {
@@ -22,7 +23,7 @@ const importEncryptionPrivateKey = async (
 };
 
 const importPrivateKey = async (Pkcs8PrivateKey: string) => {
-  const encryptionKey = await window.crypto.subtle.importKey(
+  const encryptionKey = await subtle.importKey(
     "pkcs8",
     hex2buf(Pkcs8PrivateKey),
     {

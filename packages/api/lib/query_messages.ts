@@ -5,6 +5,7 @@ export type queryMessagesParams = {
   channelUniqueKeys: string[];
   apiUniqueKeys?: string[];
 };
+import { subtle } from "./subtle";
 
 export type queryMessagesResult = {
   messages: any[];
@@ -16,7 +17,7 @@ export const verify = async (
   message: string,
   hexSignature: string
 ) => {
-  return await window.crypto.subtle.verify(
+  return await subtle.verify(
     {
       name: "ECDSA",
       hash: { name: "SHA-256" },

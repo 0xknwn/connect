@@ -11,6 +11,7 @@ export type submitChannelRequestParams = {
   channelRequestUniqueKeys: string[];
   ttl?: number;
 };
+import { subtle } from "./subtle";
 
 export type submitChannelRequestResult = {
   apiUniqueKeys?: string[];
@@ -21,16 +22,13 @@ export const channelRequestUniqueKeys = async (key: string) => {
   const rely_party = "smartr.network";
   const enc = new TextEncoder();
   const root = enc.encode(`${rely_party}/${key}`);
-  const material = await window.crypto.subtle.importKey(
-    "raw",
-    root,
-    "PBKDF2",
-    false,
-    ["deriveBits", "deriveKey"]
-  );
+  const material = await subtle.importKey("raw", root, "PBKDF2", false, [
+    "deriveBits",
+    "deriveKey",
+  ]);
   const unixtimestamp = Math.floor(Date.now() / 30000) * 30;
 
-  const key1 = await window.crypto.subtle.deriveBits(
+  const key1 = await subtle.deriveBits(
     {
       name: "PBKDF2",
       salt: enc.encode(String(unixtimestamp)),
@@ -41,7 +39,7 @@ export const channelRequestUniqueKeys = async (key: string) => {
     256
   );
 
-  const key2 = await window.crypto.subtle.deriveBits(
+  const key2 = await subtle.deriveBits(
     {
       name: "PBKDF2",
       salt: enc.encode(String(unixtimestamp + 30)),

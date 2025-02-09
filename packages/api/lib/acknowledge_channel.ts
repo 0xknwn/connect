@@ -1,9 +1,10 @@
 import { hex2buf } from "./utils";
 import { jsonRpcMethod } from "./jsonrpc";
 import type { jsonRpcRequest } from "./jsonrpc";
+import { subtle } from "./subtle";
 
 export const importPublicKey = async (rawPublicKey: string) => {
-  const encryptionKey = await window.crypto.subtle.importKey(
+  const encryptionKey = await subtle.importKey(
     "raw",
     hex2buf(rawPublicKey),
     {
@@ -37,7 +38,7 @@ export const decryptAndVerify = async (
   signature: string
 ) => {
   // @todo: share the IV and use it to decrypt the message content
-  const decryptedMessage = await window.crypto.subtle.decrypt(
+  const decryptedMessage = await subtle.decrypt(
     {
       name: "AES-GCM",
       iv: new Uint8Array(12),
@@ -46,7 +47,7 @@ export const decryptAndVerify = async (
     hex2buf(encryptedMessage)
   );
   const message = new TextDecoder().decode(decryptedMessage);
-  const verified = await window.crypto.subtle.verify(
+  const verified = await subtle.verify(
     {
       name: "ECDSA",
       hash: { name: "SHA-256" },
