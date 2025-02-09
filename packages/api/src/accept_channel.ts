@@ -127,6 +127,7 @@ export const encryptAndSign = async (
   signingKey: CryptoKey,
   message: string
 ) => {
+  // @todo: generate a random IV and share it with the receiver
   const encryptedMessage = await window.crypto.subtle.encrypt(
     {
       name: "AES-GCM",

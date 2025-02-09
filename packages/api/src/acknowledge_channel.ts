@@ -36,6 +36,7 @@ export const decryptAndVerify = async (
   encryptedMessage: string,
   signature: string
 ) => {
+  // @todo: share the IV and use it to decrypt the message content
   const decryptedMessage = await window.crypto.subtle.decrypt(
     {
       name: "AES-GCM",
