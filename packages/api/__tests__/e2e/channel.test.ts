@@ -18,7 +18,7 @@ import {
   submitMessage,
   queryMessagesResult,
   verify,
-} from "../../src";
+} from "../../lib";
 
 describe("use connect channels", () => {
   const sixdigitpin = "000000";

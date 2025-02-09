@@ -3,7 +3,7 @@ import {
   generateEncryptionKey,
   importPublicKey,
   importEncryptionPublicKey,
-} from "../../src";
+} from "../../lib";
 
 const importEncryptionPrivateKey = async (
   EncryptionPkcs8PrivateKey: string
