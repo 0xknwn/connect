@@ -2,7 +2,7 @@ import { jsonRpcMethod } from "./jsonrpc";
 import {
   submitChannelRequestParams,
   submitChannelRequestResult,
-  channelRequestID,
+  channelRequestUniqueKeys,
   submitChannelRequest,
 } from "./submit_channel_request";
 import {
@@ -17,7 +17,7 @@ import {
   generateChannelID,
   generateEncryptionKey,
   importEncryptionPublicKey,
-  acceptChannelID,
+  acceptChannelUniqueKeys,
   encryptAndSign,
 } from "./accept_channel";
 import {
@@ -28,14 +28,27 @@ import {
   acknowledgeChannelResult,
 } from "./acknowledge_channel";
 import { buf2hex, hex2buf } from "./utils";
-
+import {
+  submitMessageParams,
+  submitMessageResult,
+  channelUniqueKeys,
+  submitMessage,
+  sign,
+} from "./submit_message";
+import {
+  queryMessagesParams,
+  queryMessagesResult,
+  queryMessages,
+  verify,
+} from "./query_messages";
 export {
   acceptChannel,
   acknowledgeChannelRequest,
   acknowledgeChannel,
   buf2hex,
-  acceptChannelID,
-  channelRequestID,
+  acceptChannelUniqueKeys,
+  channelRequestUniqueKeys,
+  channelUniqueKeys,
   decryptAndVerify,
   encryptAndSign,
   generateEncryptionKey,
@@ -44,7 +57,11 @@ export {
   importEncryptionPublicKey,
   importPublicKey,
   jsonRpcMethod,
+  queryMessages,
+  sign,
   submitChannelRequest,
+  submitMessage,
+  verify,
 };
 export type {
   submitChannelRequestParams,
@@ -55,4 +72,8 @@ export type {
   acceptChannelResult,
   acknowledgeChannelParams,
   acknowledgeChannelResult,
+  submitMessageParams,
+  submitMessageResult,
+  queryMessagesParams,
+  queryMessagesResult,
 };

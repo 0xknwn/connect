@@ -17,7 +17,7 @@ export type acceptChannelResult = {
   apiUniqueKeys?: string[];
 };
 
-export const acceptChannelID = async (
+export const acceptChannelUniqueKeys = async (
   key1: string,
   key2: string,
   relyingParty: string,
