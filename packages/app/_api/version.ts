@@ -9,7 +9,5 @@ export default function handler(req: Request) {
   if (!city) {
     city = "San Francisco";
   }
-  return new Response(
-    `{"version": "dev", "city": "${city}", "env": "${process.env.API_BASE_URL}"}`
-  );
+  return new Response(`{"version": "dev", "city": "${city}"}`);
 }
