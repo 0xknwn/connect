@@ -1,0 +1,9 @@
+/__test__
+/src
+/vite.config.ts
+/tsconfig.json
+/tsconfig.lib.json
+/lib
+/index.html
+/.env.template
+/public

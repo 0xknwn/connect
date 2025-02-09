@@ -9,7 +9,9 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
+    "composite": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "emitDeclarationOnly": true,
@@ -21,6 +23,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "lib"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "vite.config.ts", "lib"]
 }
