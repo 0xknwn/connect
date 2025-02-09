@@ -17,7 +17,7 @@ export type submitChannelRequestResult = {
   deadline: number;
 };
 
-export const channelRequestID = async (key: string) => {
+export const channelRequestUniqueKeys = async (key: string) => {
   const rely_party = "smartr.network";
   const enc = new TextEncoder();
   const root = enc.encode(`${rely_party}/${key}`);

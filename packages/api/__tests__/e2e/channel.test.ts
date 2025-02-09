@@ -2,20 +2,25 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { loadKeys } from "./loadkeys";
 import {
   submitChannelRequest,
-  channelRequestID,
+  channelRequestUniqueKeys,
+  channelUniqueKeys,
   acknowledgeChannelRequest,
   acknowledgeChannelRequestResult,
   acceptChannel,
-  acceptChannelResult,
   acknowledgeChannel,
   acknowledgeChannelResult,
   encryptAndSign,
   decryptAndVerify,
-  acceptChannelID,
+  acceptChannelUniqueKeys,
   generateChannelID,
+  queryMessages,
+  sign,
+  submitMessage,
+  queryMessagesResult,
+  verify,
 } from "../../src";
 
-describe("interacts with API", () => {
+describe("use connect channels", () => {
   const sixdigitpin = "000000";
   const fourdigitpin = "0000";
   const hexAgentPrivateKey =
@@ -66,14 +71,14 @@ describe("interacts with API", () => {
   });
 
   it("submit channel request", async () => {
-    const channelRequestUniqueKeys = await channelRequestID(sixdigitpin);
+    const keys = await channelRequestUniqueKeys(sixdigitpin);
     const response = await submitChannelRequest(1, {
       relyingParty: "http://example.com",
       agentAccountAddress,
       AgentPublicKey: hexAgentPublicKey,
       agentEncryptionPublicKey: hexAgentEncryptionPublicKey,
       signerAccountID,
-      channelRequestUniqueKeys,
+      channelRequestUniqueKeys: keys,
     });
     expect(response.status).toBe(200);
     const payload = await response.json();
@@ -84,9 +89,9 @@ describe("interacts with API", () => {
   });
 
   it("acknowlege channel request", async () => {
-    const channelRequestUniqueKeys = await channelRequestID(sixdigitpin);
+    const keys = await channelRequestUniqueKeys(sixdigitpin);
     const response = await acknowledgeChannelRequest(1, {
-      channelRequestUniqueKeys,
+      channelRequestUniqueKeys: keys,
     });
     expect(response.status).toBe(200);
     const payload = await response.json();
@@ -111,7 +116,7 @@ describe("interacts with API", () => {
       channelID
     );
     const response = await acceptChannel(1, {
-      acceptChannelUniqueKeys: await acceptChannelID(
+      acceptChannelUniqueKeys: await acceptChannelUniqueKeys(
         sixdigitpin,
         fourdigitpin,
         relyingParty,
@@ -131,7 +136,7 @@ describe("interacts with API", () => {
   });
 
   it("acknowledge channel", async () => {
-    const acceptChannelUniqueKeys = await acceptChannelID(
+    const keys = await acceptChannelUniqueKeys(
       sixdigitpin,
       fourdigitpin,
       relyingParty,
@@ -140,7 +145,7 @@ describe("interacts with API", () => {
     );
 
     const response = await acknowledgeChannel(1, {
-      acceptChannelUniqueKeys,
+      acceptChannelUniqueKeys: keys,
     });
     expect(response.status).toBe(200);
     const payload = await response.json();
@@ -156,6 +161,40 @@ describe("interacts with API", () => {
       result.channelIdentifierSignature
     );
     expect(message).toBe(channelID);
+    expect(verified).toBe(true);
+  });
+
+  it("submit message", async () => {
+    const keys = await channelUniqueKeys(relyingParty, channelID);
+    const message = JSON.stringify({ hello: "world" });
+    const messageSignature = await sign(AgentKeyPair.privateKey, message);
+    const response = await submitMessage(1, {
+      channelUniqueKeys: keys,
+      message,
+      messageSignature,
+    });
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload?.result).toBeTruthy();
+  });
+
+  it("query message", async () => {
+    const keys = await channelUniqueKeys(relyingParty, channelID);
+    const response = await queryMessages(1, {
+      channelUniqueKeys: keys,
+    });
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload?.result).toBeTruthy();
+    const result: queryMessagesResult = payload.result;
+    expect(result.messages.length).toBe(1);
+    expect(result.messages[0]).toBe(JSON.stringify({ hello: "world" }));
+    expect(result.messageSignatures.length).toBe(1);
+    const verified = await verify(
+      AgentKeyPair.publicKey,
+      result.messages[0],
+      result.messageSignatures[0]
+    );
     expect(verified).toBe(true);
   });
 });

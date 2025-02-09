@@ -7,6 +7,7 @@ import {
   acknowledgeChannelRequestResult,
 } from "./acknowledge_channel_request";
 import { acceptChannelParams, acceptChannelResult } from "./accept_channel";
+import { submitMessageParams, submitMessageResult } from "./submit_message";
 
 export enum jsonRpcMethod {
   SmartrMethodSubmitChannelRequest = "smartr_submitChannelRequest",
@@ -23,7 +24,8 @@ export type jsonRpcRequest = {
   params:
     | submitChannelRequestParams
     | acknowledgeChannelRequestParams
-    | acceptChannelParams;
+    | acceptChannelParams
+    | submitMessageParams;
   id: number;
 };
 
@@ -38,7 +40,8 @@ export type jsonRpcResponse = {
   result?:
     | submitChannelRequestResult
     | acknowledgeChannelRequestResult
-    | acceptChannelResult;
+    | acceptChannelResult
+    | submitMessageResult;
   error?: RpcError;
   id: number;
 };
