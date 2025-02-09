@@ -2,6 +2,7 @@ import { buf2hex, hex2buf } from "./utils";
 import { jsonRpcMethod } from "./jsonrpc";
 import type { jsonRpcRequest } from "./jsonrpc";
 import { v4 as uuidv4 } from "uuid";
+import { subtle } from "./subtle";
 
 export type acceptChannelParams = {
   acceptChannelUniqueKeys: string[];
@@ -26,16 +27,13 @@ export const acceptChannelUniqueKeys = async (
 ) => {
   const enc = new TextEncoder();
   const root = enc.encode(`${key1}/${signerAccountID}/${deadline}/${key2}`);
-  const material = await window.crypto.subtle.importKey(
-    "raw",
-    root,
-    "HKDF",
-    false,
-    ["deriveBits", "deriveKey"]
-  );
+  const material = await subtle.importKey("raw", root, "HKDF", false, [
+    "deriveBits",
+    "deriveKey",
+  ]);
   const unixtimestamp = Math.floor(Date.now() / 30000) * 30;
 
-  const output1 = await window.crypto.subtle.deriveBits(
+  const output1 = await subtle.deriveBits(
     {
       name: "HKDF",
       salt: enc.encode(String(unixtimestamp)),
@@ -46,7 +44,7 @@ export const acceptChannelUniqueKeys = async (
     256
   );
 
-  const output2 = await window.crypto.subtle.deriveBits(
+  const output2 = await subtle.deriveBits(
     {
       name: "HKDF",
       salt: enc.encode(String(unixtimestamp)),
@@ -63,7 +61,7 @@ export const acceptChannelUniqueKeys = async (
 export const importEncryptionPublicKey = async (
   rawEncryptionPublicKey: string
 ) => {
-  const encryptionKey = await window.crypto.subtle.importKey(
+  const encryptionKey = await subtle.importKey(
     "raw",
     hex2buf(rawEncryptionPublicKey),
     {
@@ -83,7 +81,7 @@ export const generateEncryptionKey = async (
   const encryptionPublicKey = await importEncryptionPublicKey(
     encryptionRawPublicKey
   );
-  const encryptionKey = await window.crypto.subtle.deriveKey(
+  const encryptionKey = await subtle.deriveKey(
     {
       name: "ECDH",
       public: encryptionPublicKey,
@@ -128,7 +126,7 @@ export const encryptAndSign = async (
   message: string
 ) => {
   // @todo: generate a random IV and share it with the receiver
-  const encryptedMessage = await window.crypto.subtle.encrypt(
+  const encryptedMessage = await subtle.encrypt(
     {
       name: "AES-GCM",
       iv: new Uint8Array(12),
@@ -136,7 +134,7 @@ export const encryptAndSign = async (
     encryptionKey,
     new TextEncoder().encode(message)
   );
-  const signature = await window.crypto.subtle.sign(
+  const signature = await subtle.sign(
     {
       name: "ECDSA",
       hash: { name: "SHA-256" },

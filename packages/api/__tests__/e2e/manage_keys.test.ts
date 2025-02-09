@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { buf2hex, hex2buf } from "../../lib";
+import { subtle } from "../../lib/subtle";
 
 describe("channel request", () => {
   let AgentKeyPair: CryptoKeyPair;
@@ -18,7 +19,7 @@ describe("channel request", () => {
   let exportedSignerEncryptionPublicKey: string;
 
   beforeAll(async () => {
-    AgentKeyPair = await window.crypto.subtle.generateKey(
+    AgentKeyPair = await subtle.generateKey(
       {
         name: "ECDSA",
         namedCurve: "P-256",
@@ -26,7 +27,7 @@ describe("channel request", () => {
       true,
       ["sign", "verify"]
     );
-    AgentEncryptionKeyPair = await window.crypto.subtle.generateKey(
+    AgentEncryptionKeyPair = await subtle.generateKey(
       {
         name: "ECDH",
         namedCurve: "P-256",
@@ -34,7 +35,7 @@ describe("channel request", () => {
       true,
       ["deriveKey"]
     );
-    SignerKeyPair = await window.crypto.subtle.generateKey(
+    SignerKeyPair = await subtle.generateKey(
       {
         name: "ECDSA",
         namedCurve: "P-256",
@@ -42,7 +43,7 @@ describe("channel request", () => {
       true,
       ["sign", "verify"]
     );
-    SignerEncryptionKeyPair = await window.crypto.subtle.generateKey(
+    SignerEncryptionKeyPair = await subtle.generateKey(
       {
         name: "ECDH",
         namedCurve: "P-256",
@@ -60,7 +61,7 @@ describe("channel request", () => {
   });
 
   it("sign message with agent keypair", async () => {
-    signature = await window.crypto.subtle.sign(
+    signature = await subtle.sign(
       {
         name: "ECDSA",
         hash: { name: "SHA-256" },
@@ -71,7 +72,7 @@ describe("channel request", () => {
   });
 
   it("export agent private key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "pkcs8",
       AgentKeyPair.privateKey
     );
@@ -80,7 +81,7 @@ describe("channel request", () => {
   });
 
   it("export agent public key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "raw",
       AgentKeyPair.publicKey
     );
@@ -96,7 +97,7 @@ describe("channel request", () => {
   });
 
   it("export agent encryption private key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "pkcs8",
       AgentEncryptionKeyPair.privateKey
     );
@@ -105,7 +106,7 @@ describe("channel request", () => {
   });
 
   it("export agent encryption public key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "raw",
       AgentEncryptionKeyPair.publicKey
     );
@@ -121,7 +122,7 @@ describe("channel request", () => {
   });
 
   it("export signer private key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "pkcs8",
       SignerKeyPair.privateKey
     );
@@ -130,7 +131,7 @@ describe("channel request", () => {
   });
 
   it("export signer public key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "raw",
       SignerKeyPair.publicKey
     );
@@ -146,7 +147,7 @@ describe("channel request", () => {
   });
 
   it("export signer encryption private key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "pkcs8",
       SignerEncryptionKeyPair.privateKey
     );
@@ -155,7 +156,7 @@ describe("channel request", () => {
   });
 
   it("export signer encryption public key to raw hex", async () => {
-    const rawKey = await window.crypto.subtle.exportKey(
+    const rawKey = await subtle.exportKey(
       "raw",
       SignerEncryptionKeyPair.publicKey
     );
@@ -164,7 +165,7 @@ describe("channel request", () => {
   });
 
   it("import agent public key from raw and check signature with success", async () => {
-    const key = await window.crypto.subtle.importKey(
+    const key = await subtle.importKey(
       "raw",
       hex2buf(exportedAgentPublicKey),
       {
@@ -174,7 +175,7 @@ describe("channel request", () => {
       true,
       ["verify"]
     );
-    const test = await window.crypto.subtle.verify(
+    const test = await subtle.verify(
       {
         name: "ECDSA",
         hash: { name: "SHA-256" },
@@ -187,7 +188,7 @@ describe("channel request", () => {
   });
 
   it("import signer public key from raw and check signature with failure", async () => {
-    const key = await window.crypto.subtle.importKey(
+    const key = await subtle.importKey(
       "raw",
       hex2buf(exportedAgentEncryptionPublicKey),
       {
@@ -197,7 +198,7 @@ describe("channel request", () => {
       true,
       ["verify"]
     );
-    const test = await window.crypto.subtle.verify(
+    const test = await subtle.verify(
       {
         name: "ECDSA",
         hash: { name: "SHA-256" },
@@ -210,7 +211,7 @@ describe("channel request", () => {
   });
 
   it("derivekey from agent and signer and check they can encrypt/decrypt", async () => {
-    const signerEncryptionKey = await window.crypto.subtle.importKey(
+    const signerEncryptionKey = await subtle.importKey(
       "pkcs8",
       hex2buf(exportedSignerEncryptionPrivateKey),
       {
@@ -220,7 +221,7 @@ describe("channel request", () => {
       true,
       ["deriveKey"]
     );
-    const agentEncryptionPublicKey = await window.crypto.subtle.importKey(
+    const agentEncryptionPublicKey = await subtle.importKey(
       "raw",
       hex2buf(exportedAgentEncryptionPublicKey),
       {
@@ -230,7 +231,7 @@ describe("channel request", () => {
       true,
       []
     );
-    const signerKey = await window.crypto.subtle.deriveKey(
+    const signerKey = await subtle.deriveKey(
       {
         name: "ECDH",
         public: agentEncryptionPublicKey,
@@ -243,7 +244,7 @@ describe("channel request", () => {
       true,
       ["encrypt", "decrypt"]
     );
-    const agentEncryptionKey = await window.crypto.subtle.importKey(
+    const agentEncryptionKey = await subtle.importKey(
       "pkcs8",
       hex2buf(exportedAgentEncryptionPrivateKey),
       {
@@ -253,7 +254,7 @@ describe("channel request", () => {
       true,
       ["deriveKey"]
     );
-    const signerEncryptionPublicKey = await window.crypto.subtle.importKey(
+    const signerEncryptionPublicKey = await subtle.importKey(
       "raw",
       hex2buf(exportedSignerEncryptionPublicKey),
       {
@@ -263,7 +264,7 @@ describe("channel request", () => {
       true,
       []
     );
-    const agentKey = await window.crypto.subtle.deriveKey(
+    const agentKey = await subtle.deriveKey(
       {
         name: "ECDH",
         public: signerEncryptionPublicKey,
@@ -276,7 +277,7 @@ describe("channel request", () => {
       true,
       ["encrypt", "decrypt"]
     );
-    const encryptedMessage = await window.crypto.subtle.encrypt(
+    const encryptedMessage = await subtle.encrypt(
       {
         name: "AES-GCM",
         iv: new Uint8Array(12),
@@ -284,7 +285,7 @@ describe("channel request", () => {
       agentKey,
       new TextEncoder().encode("hello")
     );
-    const decryptedMessage = await window.crypto.subtle.decrypt(
+    const decryptedMessage = await subtle.decrypt(
       {
         name: "AES-GCM",
         iv: new Uint8Array(12),
