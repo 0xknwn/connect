@@ -8,7 +8,6 @@ export default async function handler(request: Request) {
   // @todo: Implement the RPC handler with the ReadableStream to avoid the
   // memory overhead
   const requestBody = JSON.stringify(await request.json());
-  console.log(requestBody);
   const output = await fetch(url, {
     method: "POST",
     headers: {
@@ -17,7 +16,6 @@ export default async function handler(request: Request) {
     body: requestBody,
   });
   const responseBody = await output.json();
-  console.log(responseBody);
   if (responseBody) {
     return new Response(JSON.stringify(responseBody), {
       status: output.status,
