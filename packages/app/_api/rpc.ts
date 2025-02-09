@@ -5,6 +5,8 @@ export const edge = true;
 
 export default async function handler(request: Request) {
   const url = process.env.API_BASE_URL as string;
+  // @todo: Implement the RPC handler with the ReadableStream to avoid the
+  // memory overhead
   const requestBody = JSON.stringify(await request.json());
   console.log(requestBody);
   const output = await fetch(url, {
