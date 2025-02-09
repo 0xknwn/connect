@@ -163,7 +163,7 @@ describe("channel request", () => {
     expect(exportedSignerEncryptionPublicKey).not.toBe("");
   });
 
-  it("import agent public key from raw and check signature", async () => {
+  it("import agent public key from raw and check signature with success", async () => {
     const key = await window.crypto.subtle.importKey(
       "raw",
       hex2buf(exportedAgentPublicKey),
@@ -186,7 +186,7 @@ describe("channel request", () => {
     expect(test).toBe(true);
   });
 
-  it("import signer public key from raw and check signature", async () => {
+  it("import signer public key from raw and check signature with failure", async () => {
     const key = await window.crypto.subtle.importKey(
       "raw",
       hex2buf(exportedAgentEncryptionPublicKey),

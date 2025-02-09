@@ -1,14 +1,21 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import loadkeys from "./loadkeys";
+import { loadKeys } from "./loadkeys";
 import {
   submitChannelRequest,
   channelRequestID,
   acknowledgeChannelRequest,
   acknowledgeChannelRequestResult,
+  acceptChannel,
+  acceptChannelParams,
+  acceptChannelResult,
+  encryptAndSign,
+  acceptChannelID,
+  generateChannelID,
 } from "../../src";
 
 describe("interacts with API", () => {
   const sixdigitpin = "000000";
+  const fourdigitpin = "0000";
   const hexAgentPrivateKey =
     "0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b0201010420b69c7ef48c764db9df61e178e13b7027bd5d1502ce05b5d58fbfa0799d2d29eca14403420004ebde890ab862328bf0f368a786a1472b0480702cc7e1967c0286678d76ae43ee9a6a39810eb0a7024637e00c3803ac817abdad587c1053435fd9b6233ad46749";
   const hexAgentPublicKey =
@@ -29,12 +36,17 @@ describe("interacts with API", () => {
   let AgentEncryptionKeyPair: CryptoKeyPair;
   let SignerKeyPair: CryptoKeyPair;
   let SignerEncryptionKeyPair: CryptoKeyPair;
+  let encryptionKey: CryptoKey;
+  let deadline: number;
+  let channelID: string;
+
+  const relyingParty = "http://example.com";
   const agentAccountAddress = "0x1234";
   const signerAccountAddress = "0x5678";
   const signerAccountID = "0x90ab";
 
   beforeAll(async () => {
-    const output = await loadkeys({
+    const output = await loadKeys({
       hexAgentPrivateKey,
       hexAgentPublicKey,
       hexAgentEncryptionPrivateKey,
@@ -48,6 +60,7 @@ describe("interacts with API", () => {
     AgentEncryptionKeyPair = output.AgentEncryptionKeyPair;
     SignerKeyPair = output.SignerKeyPair;
     SignerEncryptionKeyPair = output.SignerEncryptionKeyPair;
+    encryptionKey = output.encryptionKey;
   });
 
   it("submit channel request", async () => {
@@ -80,10 +93,39 @@ describe("interacts with API", () => {
     const unixtimestamp = Math.floor(Date.now() / 1000);
     expect(result.deadline).toBeGreaterThan(unixtimestamp + 895);
     expect(result.deadline).toBeLessThanOrEqual(unixtimestamp + 905);
+    deadline = result.deadline;
     expect(result.relyingParty).toBe("http://example.com");
     expect(result.agentAccountAddress).toBe(agentAccountAddress);
     expect(result.agentPublicKey).toBe(hexAgentPublicKey);
     expect(result.agentEncryptionPublicKey).toBe(hexAgentEncryptionPublicKey);
     expect(result.signerAccountID).toBe(signerAccountID);
+  });
+
+  it("accept channel", async () => {
+    channelID = generateChannelID();
+    const { encryptedMessage, signature } = await encryptAndSign(
+      encryptionKey,
+      SignerKeyPair.privateKey,
+      channelID
+    );
+    const response = await acceptChannel(1, {
+      acceptChannelUniqueKeys: await acceptChannelID(
+        sixdigitpin,
+        fourdigitpin,
+        relyingParty,
+        signerAccountID,
+        deadline
+      ),
+      signerPublicKey: hexSignerPublicKey,
+      signerEncryptionPublicKey: hexSignerEncryptionPublicKey,
+      signerAccountAddress,
+      encryptedChannelIdentifier: encryptedMessage,
+      channelIdentifierSignature: signature,
+      deadline,
+    });
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload?.result).toBeTruthy();
+    const result: acceptChannelResult = payload.result;
   });
 });
