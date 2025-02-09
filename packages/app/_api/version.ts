@@ -1,6 +1,5 @@
 // file: _api/version.ts
 import { geolocation } from "@vercel/edge";
-import process from "process";
 
 // Should run on edge runtime
 export const edge = true;
