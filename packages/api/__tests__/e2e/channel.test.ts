@@ -78,7 +78,7 @@ describe("use connect channels", () => {
     const response = await submitChannelRequest(baseURL, 1, {
       relyingParty: "http://example.com",
       agentAccountAddress,
-      AgentPublicKey: hexAgentPublicKey,
+      agentPublicKey: hexAgentPublicKey,
       agentEncryptionPublicKey: hexAgentEncryptionPublicKey,
       signerAccountID,
       channelRequestUniqueKeys: keys,

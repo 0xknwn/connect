@@ -5,7 +5,7 @@ import type { jsonRpcRequest } from "./jsonrpc";
 export type submitChannelRequestParams = {
   relyingParty: string;
   agentAccountAddress?: string;
-  AgentPublicKey: string;
+  agentPublicKey: string;
   agentEncryptionPublicKey: string;
   signerAccountID: string;
   channelRequestUniqueKeys: string[];
