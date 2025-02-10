@@ -54,10 +54,11 @@ export const channelRequestUniqueKeys = async (key: string) => {
 };
 
 export const submitChannelRequest = async (
+  baseURL: string,
   id: number,
   params: submitChannelRequestParams
 ): Promise<Response> => {
-  const response = await fetch(import.meta.env.VITE_API_BASE_URL, {
+  const response = await fetch(baseURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
