@@ -1,4 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 import { loadKeys } from "./loadkeys";
 import {
   submitChannelRequest,
@@ -72,7 +75,7 @@ describe("use connect channels", () => {
 
   it("submit channel request", async () => {
     const keys = await channelRequestUniqueKeys(sixdigitpin);
-    const response = await submitChannelRequest(1, {
+    const response = await submitChannelRequest(baseURL, 1, {
       relyingParty: "http://example.com",
       agentAccountAddress,
       AgentPublicKey: hexAgentPublicKey,
@@ -90,7 +93,7 @@ describe("use connect channels", () => {
 
   it("acknowlege channel request", async () => {
     const keys = await channelRequestUniqueKeys(sixdigitpin);
-    const response = await acknowledgeChannelRequest(1, {
+    const response = await acknowledgeChannelRequest(baseURL, 1, {
       channelRequestUniqueKeys: keys,
     });
     expect(response.status).toBe(200);
@@ -115,7 +118,7 @@ describe("use connect channels", () => {
       SignerKeyPair.privateKey,
       channelID
     );
-    const response = await acceptChannel(1, {
+    const response = await acceptChannel(baseURL, 1, {
       acceptChannelUniqueKeys: await acceptChannelUniqueKeys(
         sixdigitpin,
         fourdigitpin,
@@ -144,7 +147,7 @@ describe("use connect channels", () => {
       deadline
     );
 
-    const response = await acknowledgeChannel(1, {
+    const response = await acknowledgeChannel(baseURL, 1, {
       acceptChannelUniqueKeys: keys,
     });
     expect(response.status).toBe(200);
@@ -168,7 +171,7 @@ describe("use connect channels", () => {
     const keys = await channelUniqueKeys(relyingParty, channelID);
     const message = JSON.stringify({ hello: "world" });
     const messageSignature = await sign(AgentKeyPair.privateKey, message);
-    const response = await submitMessage(1, {
+    const response = await submitMessage(baseURL, 1, {
       channelUniqueKeys: keys,
       message,
       messageSignature,
@@ -180,7 +183,7 @@ describe("use connect channels", () => {
 
   it("query message", async () => {
     const keys = await channelUniqueKeys(relyingParty, channelID);
-    const response = await queryMessages(1, {
+    const response = await queryMessages(baseURL, 1, {
       channelUniqueKeys: keys,
     });
     expect(response.status).toBe(200);

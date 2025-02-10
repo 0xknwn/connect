@@ -1,3 +1,5 @@
+import { subtle } from "./subtle";
+
 export const buf2hex = (buffer: ArrayBuffer) => {
   return (
     "0x" +
@@ -22,4 +24,9 @@ export const hex2buf = (key: string) => {
     throw new Error("Invalid hex string");
   }
   return new Uint8Array(v.map((byte) => parseInt(byte, 16)));
+};
+
+export const exportPublicKeyToHex = async (key: CryptoKey) => {
+  const rawKey = await subtle.exportKey("raw", key);
+  return buf2hex(rawKey);
 };

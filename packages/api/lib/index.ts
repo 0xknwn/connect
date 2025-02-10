@@ -27,7 +27,7 @@ import {
   acknowledgeChannelParams,
   acknowledgeChannelResult,
 } from "./acknowledge_channel";
-import { buf2hex, hex2buf } from "./utils";
+import { buf2hex, hex2buf, exportPublicKeyToHex } from "./utils";
 import {
   submitMessageParams,
   submitMessageResult,
@@ -51,6 +51,7 @@ export {
   channelUniqueKeys,
   decryptAndVerify,
   encryptAndSign,
+  exportPublicKeyToHex,
   generateEncryptionKey,
   generateChannelID,
   hex2buf,
