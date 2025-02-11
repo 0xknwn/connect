@@ -2,7 +2,8 @@ import { buf2hex, hex2buf } from "./utils";
 import { jsonRpcMethod } from "./jsonrpc";
 import type { jsonRpcRequest } from "./jsonrpc";
 import { v4 as uuidv4 } from "uuid";
-import { subtle } from "./subtle";
+import { subtle, getRandomValues } from "./subtle";
+import { sign } from "./submit_message";
 
 export type acceptChannelParams = {
   acceptChannelUniqueKeys: string[];
@@ -47,7 +48,7 @@ export const acceptChannelUniqueKeys = async (
   const output2 = await subtle.deriveBits(
     {
       name: "HKDF",
-      salt: enc.encode(String(unixtimestamp)),
+      salt: enc.encode(String(unixtimestamp + 30)),
       info: new TextEncoder().encode(`${relyingParty}`),
       hash: "SHA-256",
     },
@@ -121,30 +122,31 @@ export const generateChannelID = () => {
   return uuidv4();
 };
 
+export const encrypt = async (encryptionKey: CryptoKey, message: string) => {
+  if (!encryptionKey) {
+    throw new Error("No encryption key");
+  }
+  const iv = getRandomValues(new Uint8Array(12));
+  const encrypted = await subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    encryptionKey,
+    new TextEncoder().encode(message)
+  );
+  return [buf2hex(iv), buf2hex(encrypted)].join(":");
+};
+
 export const encryptAndSign = async (
   encryptionKey: CryptoKey,
   signingKey: CryptoKey,
   message: string
 ) => {
-  // @todo: generate a random IV and share it with the receiver
-  const encryptedMessage = await subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv: new Uint8Array(12),
-    },
-    encryptionKey,
-    new TextEncoder().encode(message)
-  );
-  const signature = await subtle.sign(
-    {
-      name: "ECDSA",
-      hash: { name: "SHA-256" },
-    },
-    signingKey,
-    new TextEncoder().encode(message)
-  );
+  const encryptedMessage = await encrypt(encryptionKey, message);
+  const signature = await sign(signingKey, message);
   return {
-    encryptedMessage: buf2hex(encryptedMessage),
-    signature: buf2hex(signature),
+    encryptedMessage,
+    signature,
   };
 };

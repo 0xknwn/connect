@@ -11,29 +11,43 @@ export const AuthnContext = createContext<{
   remoteAccountID: string;
   publicKey: CryptoKey | null;
   sharingPublicKey: CryptoKey | null;
+  remoteAccountAddress: string;
+  setRemoteAccountAddress: (address: string) => void;
+  channelID: string;
+  setChannelID: (id: string) => void;
   setRemoteSharingPublicKey: (key: CryptoKey) => void;
   setRemotePublicKey: (key: CryptoKey) => void;
+  setEncryptedChannelIdentifier: (identifier: string) => void;
+  setChannelIdentifierSignature: (signature: string) => void;
   deadline: number;
   setDeadline: (deadline: number) => void;
   channelState: ChannelState;
   setChannelState: (state: ChannelState) => void;
-  verify: (data: Uint8Array, signature: Uint8Array) => Promise<boolean>;
-  sign: (data: Uint8Array) => Promise<ArrayBuffer>;
-  encrypt: (data: string) => Promise<{ iv: Uint8Array; data: Uint8Array }>;
+  verify: (data: string, signature: string) => Promise<boolean>;
+  sign: (message: string) => Promise<string>;
+  encrypt: (data: string) => Promise<string>;
+  decrypt: (message: string) => Promise<string>;
 }>({
   accountAddress: "0x0",
   remoteAccountID: "0x0",
   publicKey: null,
   sharingPublicKey: null,
+  remoteAccountAddress: "0x0",
+  channelID: "",
+  setRemoteAccountAddress: () => {},
+  setChannelID: () => {},
   setRemoteSharingPublicKey: () => {},
   setRemotePublicKey: () => {},
+  setEncryptedChannelIdentifier: () => {},
+  setChannelIdentifierSignature: () => {},
   deadline: 0,
   setDeadline: () => {},
   channelState: ChannelState.initial,
   setChannelState: () => {},
   verify: async () => false,
-  sign: async () => new ArrayBuffer(0),
-  encrypt: async () => ({ iv: new Uint8Array(0), data: new Uint8Array(0) }),
+  sign: async () => "",
+  encrypt: async () => "",
+  decrypt: async () => "",
 });
 
 export const useAuthn = () => {

@@ -71,7 +71,6 @@ const ackChannelRequest = async (pin: string) => {
       console.error(output.error);
       return;
     }
-    console.log("");
     const {
       relyingParty,
       agentAccountAddress,
@@ -119,6 +118,7 @@ const accChannel = async (
     privateKey,
     channelID
   );
+
   const acceptChannelResult = await acceptChannel(baseURL, 1, {
     acceptChannelUniqueKeys: ackChannelKeys,
     signerPublicKey: await exportPublicKeyToHex(publicKey),
@@ -136,15 +136,16 @@ const accChannel = async (
     console.error(output.error);
     return;
   }
-  console.log("output result:", output.result);
   return {
-    publicKey, privateKey, channelID, encryptionKey
-  }
+    publicKey,
+    privateKey,
+    channelID,
+    encryptionKey,
+  };
 };
 
 const main = async () => {
   console.log("Starting...");
-  console.log("baseURL:", baseURL);
   const sixDigitPin = await ask6DigitPin();
 
   const output = await ackChannelRequest(sixDigitPin);
@@ -160,12 +161,6 @@ const main = async () => {
     signerAccountID,
     deadline,
   } = output;
-  console.log("relyingParty:", relyingParty);
-  console.log("agentAccountAddress:", agentAccountAddress);
-  console.log("agentPublicKey:", agentPublicKey);
-  console.log("agentEncryptionPublicKey:", agentEncryptionPublicKey);
-  console.log("signerAccountID:", signerAccountID);
-  console.log("deadline:", deadline);
 
   const fourDigitPin = String(Math.floor(Math.random() * 10000)).padStart(
     4,
@@ -173,12 +168,20 @@ const main = async () => {
   );
   console.log("4-digit pin:", fourDigitPin);
 
-  const accOutput = await accChannel(sixDigitPin, fourDigitPin, relyingParty, signerAccountID, deadline, agentEncryptionPublicKey);
+  const accOutput = await accChannel(
+    sixDigitPin,
+    fourDigitPin,
+    relyingParty,
+    signerAccountID,
+    deadline,
+    agentEncryptionPublicKey
+  );
   if (!accOutput) {
     console.error("Failed to accept channel request");
     return;
   }
-  // const { publicKey, privateKey, channelID, encryptionKey } = accOutput;
+  const { publicKey, privateKey, channelID, encryptionKey } = accOutput;
+  console.log("channelID:", channelID);
   // console.log("ok:", publicKey, privateKey, channelID, encryptionKey);
 
   // for (let i = 0; i < 30; i++) {

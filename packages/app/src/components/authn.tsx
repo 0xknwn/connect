@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 
 import { AuthnContext } from "./authn_context";
-import { hex2buf, buf2hex } from "@0xknwn/connect-api";
+import {
+  hex2buf,
+  buf2hex,
+  encrypt as apiEncrypt,
+  decrypt as apiDecrypt,
+  sign as apiSign,
+  verify as apiVerify,
+} from "@0xknwn/connect-api";
 import { ChannelState } from "./authn_context";
 type AuthProviderProps = {
   children: React.ReactNode;
@@ -35,9 +42,48 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [remoteSharingPublicKey, setRemoteSharingPublicKey] = useState(
     null as CryptoKey | null
   );
+
+  const [remoteAccountAddress, setRemoteAccountAddress] = useState(
+    "0x0" as string
+  );
+
+  const [encryptedChannelIdentifier, setEncryptedChannelIdentifier] = useState(
+    "" as string
+  );
+
+  const [_, setChannelIdentifierSignature] = useState("" as string);
+
+  const [channelID, setChannelID] = useState("" as string);
+
   const [encryptionKey, setEncryptionKey] = useState(null as CryptoKey | null);
 
   const [channelState, setChannelState] = useState(ChannelState.initial);
+
+  useEffect(() => {
+    const init = async () => {
+      if (
+        !encryptedChannelIdentifier ||
+        encryptedChannelIdentifier === "" ||
+        !encryptionKey
+      ) {
+        return;
+      }
+      try {
+        const c = await apiDecrypt(encryptionKey, encryptedChannelIdentifier);
+        setChannelID(c);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    init();
+  }, [encryptedChannelIdentifier, encryptionKey]);
+
+  useEffect(() => {
+    if (channelID) {
+      console.log("channelID:", channelID);
+      setChannelState(ChannelState.channelOpened);
+    }
+  }, [channelID]);
 
   // if the channel is transition to the request pending state, set a timer
   // to reset the state back to the initial state if the channel is still in
@@ -54,49 +100,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => clearInterval(interval);
   }, [channelState]);
 
-  const encrypt = async (data: string) => {
+  const encrypt = async (message: string) => {
     if (!encryptionKey) {
       throw new Error("No encryption key");
     }
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
-    const encrypted = await window.crypto.subtle.encrypt(
-      {
-        name: "AES-GCM",
-        iv,
-      },
-      encryptionKey,
-      new TextEncoder().encode(data)
-    );
-    return { iv, data: new Uint8Array(encrypted) };
+    return apiEncrypt(encryptionKey, message);
   };
 
-  const verify = async (data: Uint8Array, signature: Uint8Array) => {
+  const decrypt = async (encryptedMessage: string) => {
+    if (!encryptionKey) {
+      throw new Error("No encryption key");
+    }
+    return apiDecrypt(encryptionKey, encryptedMessage);
+  };
+
+  const verify = async (message: string, hexSignature: string) => {
     if (!remotePublicKey) {
       throw new Error("No remote public key");
     }
-    return await window.crypto.subtle.verify(
-      {
-        name: "ECDSA",
-        hash: { name: "SHA-256" },
-      },
-      remotePublicKey,
-      signature,
-      data
-    );
+    return apiVerify(remotePublicKey, message, hexSignature);
   };
 
-  const sign = async (data: Uint8Array) => {
+  const sign = async (message: string) => {
     if (!privateKey) {
       throw new Error("No private key");
     }
-    return await window.crypto.subtle.sign(
-      {
-        name: "ECDSA",
-        hash: { name: "SHA-256" },
-      },
-      privateKey,
-      data
-    );
+    return apiSign(privateKey, message);
   };
 
   useEffect(() => {
@@ -345,8 +374,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     remoteAccountID,
     publicKey,
     sharingPublicKey,
+    remoteAccountAddress,
+    setRemoteAccountAddress,
+    channelID,
+    setChannelID,
     setRemoteSharingPublicKey,
     setRemotePublicKey,
+    setEncryptedChannelIdentifier,
+    setChannelIdentifierSignature,
     deadline,
     setDeadline,
     channelState,
@@ -354,6 +389,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     verify,
     sign,
     encrypt,
+    decrypt,
   };
 
   return (

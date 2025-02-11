@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   acceptChannelUniqueKeys,
   acknowledgeChannel,
+  hex2buf,
+  subtle,
 } from "@0xknwn/connect-api";
 import { useAuthn } from "./authn_context";
 import { ChannelState } from "./authn_context";
-
 function AcknowledgeChannel() {
   const {
     remoteAccountID,
@@ -13,26 +14,32 @@ function AcknowledgeChannel() {
     sharingPublicKey,
     channelState,
     deadline,
-    setChannelState,
+    setRemotePublicKey,
+    setRemoteAccountAddress,
+    setRemoteSharingPublicKey,
+    setEncryptedChannelIdentifier,
+    setChannelIdentifierSignature,
   } = useAuthn();
-  const dixDigitPin = "123456";
-  const [pin, setPin] = useState("123456");
+  const sixDigitPin = "123456";
+  const [pin, setPin] = useState("");
+
+  useEffect(() => {}, []);
+
   const url = "/api";
   const relyingParty = window.location.hostname;
 
   const request = async () => {
-    // export public key from CryptoKey
     if (!publicKey || !sharingPublicKey) {
       throw new Error("missing public keys");
     }
     const keys = await acceptChannelUniqueKeys(
-      dixDigitPin,
+      sixDigitPin,
       pin,
       relyingParty,
       remoteAccountID,
       deadline
     );
-
+    console.log("keys", keys);
     const response = await acknowledgeChannel(url, 2, {
       acceptChannelUniqueKeys: keys,
     });
@@ -42,16 +49,36 @@ function AcknowledgeChannel() {
     const output = await response.json();
     if (output.result) {
       console.log("channel acknowledged");
-      //   {
-      //     "signerPublicKey": "0x043c5013b7724a0250374945461726f9fc8ee75fbf6a29c455634f5daf5aa26cdbf4200a6b8659ff3d6b856042a7465f83216b0e27a26213d45a457b2d700a719e",
-      //     "signerEncryptionPublicKey": "0x0406d070c199dba1a92da016447e669e66b1b87d7ef9db6995341eb20fb7e813ef23a63bcc1f874d12afe8664aeda44e0308368853e4f31e4fac8171e2ad4c68bf",
-      //     "signerAccountAddress": "0x1",
-      //     "encryptedChannelIdentifier": "0x6ef592afbda0479d876e71cd63e774228af945183a830f759991be21d36400006ffa7ec9ef1f5b7486573c26bbab97f53415b9e6",
-      //     "channelIdentifierSignature": "0x36fd6656f9e4539753e4e1341ea5404e59a1483f0e24ef3658f7d2348cbb293958f64f1ffad7b99507b771730c0a02290bdea67cb47edbf10d0817c87ddadf8d",
-      //     "deadline": 1739269593
-      // }
-      console.log("output result:", output.result);
-      setChannelState(ChannelState.channelOpened);
+      const {
+        signerPublicKey,
+        signerEncryptionPublicKey,
+        signerAccountAddress,
+        encryptedChannelIdentifier,
+        channelIdentifierSignature,
+        deadline: receivedDeadline,
+      } = output.result;
+      if (!deadline || receivedDeadline !== deadline) {
+        throw new Error("missing deadline");
+      }
+      const pubkey = await subtle.importKey(
+        "raw",
+        hex2buf(signerPublicKey),
+        { name: "ECDSA", namedCurve: "P-256" },
+        true,
+        []
+      );
+      const ecpubkey = await subtle.importKey(
+        "raw",
+        hex2buf(signerEncryptionPublicKey),
+        { name: "ECDH", namedCurve: "P-256" },
+        true,
+        []
+      );
+      setRemotePublicKey(pubkey);
+      setRemoteSharingPublicKey(ecpubkey);
+      setRemoteAccountAddress(signerAccountAddress);
+      setEncryptedChannelIdentifier(encryptedChannelIdentifier);
+      setChannelIdentifierSignature(channelIdentifierSignature);
       return;
     }
     console.error("channel acknowledged failed", output);
