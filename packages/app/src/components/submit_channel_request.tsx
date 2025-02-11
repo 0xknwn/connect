@@ -6,6 +6,7 @@ import {
   submitChannelRequestParams,
 } from "@0xknwn/connect-api";
 import { useAuthn } from "./authn_context";
+import { ChannelState } from "./authn_context";
 
 function SubmitChannelRequest() {
   const {
@@ -13,8 +14,9 @@ function SubmitChannelRequest() {
     remoteAccountID,
     publicKey,
     sharingPublicKey,
-    channelRequestPending,
-    setChannelRequestPending,
+    channelState,
+    setDeadline,
+    setChannelState,
   } = useAuthn();
   const [pin, _] = useState("123456");
   const url = "/api";
@@ -48,7 +50,12 @@ function SubmitChannelRequest() {
     const output = await response.json();
     if (output.result) {
       console.log("channel request submitted");
-      setChannelRequestPending(true);
+      const { deadline } = output.result;
+      if (!deadline) {
+        throw new Error("missing deadline");
+      }
+      setDeadline(deadline);
+      setChannelState(ChannelState.requestPending);
       return;
     }
     console.error("channel request failed", output);
@@ -56,7 +63,7 @@ function SubmitChannelRequest() {
 
   return (
     <>
-      {channelRequestPending || (
+      {channelState === ChannelState.initial && (
         <>
           <h2>Channel Request Pending</h2>
           <input type="text" placeholder="pin" value={pin} readOnly />

@@ -16,6 +16,7 @@ import {
   queryMessagesResult,
   verify,
 } from "@0xknwn/connect-api";
+import "dotenv/config";
 
 const baseURL = process.env.API_BASE_URL || "http://localhost:8080";
 
@@ -30,7 +31,6 @@ const generateKey = async (namedCurve = "P-256") => {
     true,
     ["sign", "verify"]
   );
-
   return { publicKey, privateKey };
 };
 
@@ -43,7 +43,6 @@ const generateECDHKey = async (namedCurve = "P-256") => {
     true,
     ["deriveKey", "deriveBits"]
   );
-
   return { publicKey, privateKey };
 };
 
@@ -81,7 +80,6 @@ const ackChannelRequest = async (pin: string) => {
       signerAccountID,
       deadline,
     } = output.result as acknowledgeChannelRequestResult;
-    console.log("result:", output.result);
     return {
       relyingParty,
       agentAccountAddress,
@@ -93,9 +91,60 @@ const ackChannelRequest = async (pin: string) => {
   }
 };
 
-const accChannel = async (pin: string) => {};
+const accChannel = async (
+  sixDigitPin: string,
+  fourDigitPin: string,
+  relyingParty: string,
+  signerAccountID: string,
+  deadline: number,
+  remoteEncryptionPublicKey: string
+) => {
+  const ackChannelKeys = await acceptChannelUniqueKeys(
+    sixDigitPin,
+    fourDigitPin,
+    relyingParty,
+    signerAccountID,
+    deadline
+  );
+  const { publicKey, privateKey } = await generateKey();
+  const { publicKey: publicECDHKey, privateKey: privateECDHKey } =
+    await generateECDHKey();
+  const channelID = generateChannelID();
+  const encryptionKey = await generateEncryptionKey(
+    privateECDHKey,
+    remoteEncryptionPublicKey
+  );
+  const { encryptedMessage, signature } = await encryptAndSign(
+    encryptionKey,
+    privateKey,
+    channelID
+  );
+  const acceptChannelResult = await acceptChannel(baseURL, 1, {
+    acceptChannelUniqueKeys: ackChannelKeys,
+    signerPublicKey: await exportPublicKeyToHex(publicKey),
+    signerEncryptionPublicKey: await exportPublicKeyToHex(publicECDHKey),
+    signerAccountAddress: accountAddress,
+    encryptedChannelIdentifier: encryptedMessage,
+    channelIdentifierSignature: signature,
+    deadline,
+  } as acceptChannelParams);
+  if (acceptChannelResult.ok) {
+    console.log("Channel accepted");
+  }
+  const output = await acceptChannelResult.json();
+  if (output.error) {
+    console.error(output.error);
+    return;
+  }
+  console.log("output result:", output.result);
+  return {
+    publicKey, privateKey, channelID, encryptionKey
+  }
+};
 
 const main = async () => {
+  console.log("Starting...");
+  console.log("baseURL:", baseURL);
   const sixDigitPin = await ask6DigitPin();
 
   const output = await ackChannelRequest(sixDigitPin);
@@ -123,68 +172,46 @@ const main = async () => {
     "0"
   );
   console.log("4-digit pin:", fourDigitPin);
-  const ackChannelKeys = await acceptChannelUniqueKeys(
-    sixDigitPin,
-    fourDigitPin,
-    relyingParty,
-    signerAccountID,
-    deadline
-  );
-  const { publicKey, privateKey } = await generateKey();
-  const { publicKey: publicECDHKey, privateKey: privateECDHKey } =
-    await generateECDHKey();
-  const channelID = generateChannelID();
-  const encryptionKey = await generateEncryptionKey(
-    privateECDHKey,
-    agentEncryptionPublicKey
-  );
-  const { encryptedMessage, signature } = await encryptAndSign(
-    encryptionKey,
-    privateKey,
-    channelID
-  );
-  const acceptChannelResult = await acceptChannel(baseURL, 1, {
-    acceptChannelUniqueKeys: ackChannelKeys,
-    signerPublicKey: await exportPublicKeyToHex(publicKey),
-    signerEncryptionPublicKey: await exportPublicKeyToHex(publicECDHKey),
-    signerAccountAddress: accountAddress,
-    encryptedChannelIdentifier: encryptedMessage,
-    channelIdentifierSignature: signature,
-    deadline,
-  } as acceptChannelParams);
-  console.log(acceptChannelResult);
 
-  for (let i = 0; i < 30; i++) {
-    const keys = await channelUniqueKeys(relyingParty, channelID);
-    const response = await queryMessages(baseURL, 1, {
-      channelUniqueKeys: keys,
-    });
-    if (!response.ok) {
-      console.error(await response.json());
-      return;
-    }
-    const payload = await response.json();
-    if (payload.error && payload.error.code === -32001) {
-      process.stdout.write(".");
-      await sleep(5000);
-      continue;
-    }
-    if (payload.error) {
-      console.error(payload.error);
-      return;
-    }
-    console.log("");
-    const result = payload.result as queryMessagesResult;
-    if (Array.isArray(result.messages)) {
-      for (let [idx, _] of result.messages.entries()) {
-        const message = result.messages[idx];
-        const signature = result.messageSignatures[idx];
-        const verified = await verify(publicKey, message, signature);
-        console.log("message:", message);
-        console.log("verified:", verified);
-      }
-    }
+  const accOutput = await accChannel(sixDigitPin, fourDigitPin, relyingParty, signerAccountID, deadline, agentEncryptionPublicKey);
+  if (!accOutput) {
+    console.error("Failed to accept channel request");
+    return;
   }
+  // const { publicKey, privateKey, channelID, encryptionKey } = accOutput;
+  // console.log("ok:", publicKey, privateKey, channelID, encryptionKey);
+
+  // for (let i = 0; i < 30; i++) {
+  //   const keys = await channelUniqueKeys(relyingParty, channelID);
+  //   const response = await queryMessages(baseURL, 1, {
+  //     channelUniqueKeys: keys,
+  //   });
+  //   if (!response.ok) {
+  //     console.error(await response.json());
+  //     return;
+  //   }
+  //   const payload = await response.json();
+  //   if (payload.error && payload.error.code === -32001) {
+  //     process.stdout.write(".");
+  //     await sleep(5000);
+  //     continue;
+  //   }
+  //   if (payload.error) {
+  //     console.error(payload.error);
+  //     return;
+  //   }
+  //   console.log("");
+  //   const result = payload.result as queryMessagesResult;
+  //   if (Array.isArray(result.messages)) {
+  //     for (let [idx, _] of result.messages.entries()) {
+  //       const message = result.messages[idx];
+  //       const signature = result.messageSignatures[idx];
+  //       const verified = await verify(publicKey, message, signature);
+  //       console.log("message:", message);
+  //       console.log("verified:", verified);
+  //     }
+  //   }
+  // }
 };
 
 main();

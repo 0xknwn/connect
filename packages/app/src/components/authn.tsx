@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { AuthnContext } from "./authn_context";
 import { hex2buf, buf2hex } from "@0xknwn/connect-api";
-
+import { ChannelState } from "./authn_context";
 type AuthProviderProps = {
   children: React.ReactNode;
 };
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const remoteAccountID = "0xabcdef1234567890abcdef1234567890abcdef12";
   const [privateKey, setPrivateKey] = useState(null as CryptoKey | null);
   const [publicKey, setPublicKey] = useState(null as CryptoKey | null);
+  const [deadline, setDeadline] = useState(0);
   const [sharingPrivateKey, setSharingPrivateKey] = useState(
     null as CryptoKey | null
   );
@@ -36,16 +37,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
   const [encryptionKey, setEncryptionKey] = useState(null as CryptoKey | null);
 
-  const [channelRequestPending, setChannelRequestPending] = useState(false);
+  const [channelState, setChannelState] = useState(ChannelState.initial);
+
+  // if the channel is transition to the request pending state, set a timer
+  // to reset the state back to the initial state if the channel is still in
+  // the request pending state after 45 seconds
   useEffect(() => {
-    if (!channelRequestPending) {
+    if (!ChannelState.requestPending) {
       return;
     }
     const interval = setInterval(() => {
-      setChannelRequestPending(false);
+      if (channelState === ChannelState.requestPending) {
+        setChannelState(ChannelState.initial);
+      }
     }, 45000);
     return () => clearInterval(interval);
-  }, [channelRequestPending]);
+  }, [channelState]);
 
   const encrypt = async (data: string) => {
     if (!encryptionKey) {
@@ -340,8 +347,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     sharingPublicKey,
     setRemoteSharingPublicKey,
     setRemotePublicKey,
-    channelRequestPending,
-    setChannelRequestPending,
+    deadline,
+    setDeadline,
+    channelState,
+    setChannelState,
     verify,
     sign,
     encrypt,
