@@ -2,6 +2,7 @@ import { hex2buf } from "./utils";
 import { jsonRpcMethod } from "./jsonrpc";
 import type { jsonRpcRequest } from "./jsonrpc";
 import { subtle } from "./subtle";
+import { verify } from "./query_messages";
 
 export const importPublicKey = async (rawPublicKey: string) => {
   const encryptionKey = await subtle.importKey(
@@ -31,32 +32,34 @@ export type acknowledgeChannelResult = {
   deadline: number;
 };
 
+export const decrypt = async (
+  encryptionKey: CryptoKey,
+  encryptedMessage: string
+) => {
+  if (!encryptionKey) {
+    throw new Error("No encryption key");
+  }
+  const [iv, data] = encryptedMessage.split(":").map((x) => hex2buf(x));
+  const decryptedMessage = await subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    encryptionKey,
+    data
+  );
+  return new TextDecoder().decode(decryptedMessage);
+};
+
 export const decryptAndVerify = async (
   encryptionKey: CryptoKey,
   verifyingKey: CryptoKey,
   encryptedMessage: string,
   signature: string
 ) => {
-  // @todo: share the IV and use it to decrypt the message content
-  const decryptedMessage = await subtle.decrypt(
-    {
-      name: "AES-GCM",
-      iv: new Uint8Array(12),
-    },
-    encryptionKey,
-    hex2buf(encryptedMessage)
-  );
-  const message = new TextDecoder().decode(decryptedMessage);
-  const verified = await subtle.verify(
-    {
-      name: "ECDSA",
-      hash: { name: "SHA-256" },
-    },
-    verifyingKey,
-    hex2buf(signature),
-    decryptedMessage
-  );
-  return { message, verified };
+  const decryptedMessage = await decrypt(encryptionKey, encryptedMessage);
+  const verified = await verify(verifyingKey, decryptedMessage, signature);
+  return { message: decryptedMessage, verified };
 };
 
 export const acknowledgeChannel = async (

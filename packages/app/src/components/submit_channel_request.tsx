@@ -65,7 +65,7 @@ function SubmitChannelRequest() {
     <>
       {channelState === ChannelState.initial && (
         <>
-          <h2>Channel Request Pending</h2>
+          <h2>Submit a new Channel Request</h2>
           <input type="text" placeholder="pin" value={pin} readOnly />
           <button onClick={request}>submit</button>
         </>

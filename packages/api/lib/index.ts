@@ -18,9 +18,11 @@ import {
   generateEncryptionKey,
   importEncryptionPublicKey,
   acceptChannelUniqueKeys,
+  encrypt,
   encryptAndSign,
 } from "./accept_channel";
 import {
+  decrypt,
   decryptAndVerify,
   importPublicKey,
   acknowledgeChannel,
@@ -41,6 +43,7 @@ import {
   queryMessages,
   verify,
 } from "./query_messages";
+import { subtle, getRandomValues } from "./subtle";
 export {
   acceptChannel,
   acknowledgeChannelRequest,
@@ -49,7 +52,9 @@ export {
   acceptChannelUniqueKeys,
   channelRequestUniqueKeys,
   channelUniqueKeys,
+  decrypt,
   decryptAndVerify,
+  encrypt,
   encryptAndSign,
   exportPublicKeyToHex,
   generateEncryptionKey,
@@ -63,6 +68,8 @@ export {
   submitChannelRequest,
   submitMessage,
   verify,
+  subtle,
+  getRandomValues,
 };
 export type {
   submitChannelRequestParams,

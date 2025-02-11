@@ -17,6 +17,9 @@ export const verify = async (
   message: string,
   hexSignature: string
 ) => {
+  if (!verifyingKey) {
+    throw new Error("No public key");
+  }
   return await subtle.verify(
     {
       name: "ECDSA",
