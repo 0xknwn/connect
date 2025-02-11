@@ -8,8 +8,14 @@ import {
 import { useAuthn } from "./authn_context";
 
 function SubmitChannelRequest() {
-  const { accountAddress, remoteAccountID, publicKey, sharingPublicKey } =
-    useAuthn();
+  const {
+    accountAddress,
+    remoteAccountID,
+    publicKey,
+    sharingPublicKey,
+    channelRequestPending,
+    setChannelRequestPending,
+  } = useAuthn();
   const [pin, _] = useState("123456");
   const url = "/api";
   const relyingParty = window.location.hostname;
@@ -42,6 +48,7 @@ function SubmitChannelRequest() {
     const output = await response.json();
     if (output.result) {
       console.log("channel request submitted");
+      setChannelRequestPending(true);
       return;
     }
     console.error("channel request failed", output);
@@ -49,9 +56,13 @@ function SubmitChannelRequest() {
 
   return (
     <>
-      <h2>submit Channel Request</h2>
-      <input type="text" placeholder="pin" value={pin} readOnly />
-      <button onClick={request}>submit</button>
+      {channelRequestPending || (
+        <>
+          <h2>Channel Request Pending</h2>
+          <input type="text" placeholder="pin" value={pin} readOnly />
+          <button onClick={request}>submit</button>
+        </>
+      )}
     </>
   );
 }

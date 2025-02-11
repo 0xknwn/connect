@@ -36,6 +36,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
   const [encryptionKey, setEncryptionKey] = useState(null as CryptoKey | null);
 
+  const [channelRequestPending, setChannelRequestPending] = useState(false);
+  useEffect(() => {
+    if (!channelRequestPending) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setChannelRequestPending(false);
+    }, 45000);
+    return () => clearInterval(interval);
+  }, [channelRequestPending]);
+
   const encrypt = async (data: string) => {
     if (!encryptionKey) {
       throw new Error("No encryption key");
@@ -329,6 +340,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     sharingPublicKey,
     setRemoteSharingPublicKey,
     setRemotePublicKey,
+    channelRequestPending,
+    setChannelRequestPending,
     verify,
     sign,
     encrypt,

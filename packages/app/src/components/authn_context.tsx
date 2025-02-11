@@ -7,6 +7,8 @@ export const AuthnContext = createContext<{
   sharingPublicKey: CryptoKey | null;
   setRemoteSharingPublicKey: (key: CryptoKey) => void;
   setRemotePublicKey: (key: CryptoKey) => void;
+  channelRequestPending: boolean;
+  setChannelRequestPending: (pending: boolean) => void;
   verify: (data: Uint8Array, signature: Uint8Array) => Promise<boolean>;
   sign: (data: Uint8Array) => Promise<ArrayBuffer>;
   encrypt: (data: string) => Promise<{ iv: Uint8Array; data: Uint8Array }>;
@@ -17,6 +19,8 @@ export const AuthnContext = createContext<{
   sharingPublicKey: null,
   setRemoteSharingPublicKey: () => {},
   setRemotePublicKey: () => {},
+  channelRequestPending: false,
+  setChannelRequestPending: () => {},
   verify: async () => false,
   sign: async () => new ArrayBuffer(0),
   encrypt: async () => ({ iv: new Uint8Array(0), data: new Uint8Array(0) }),
