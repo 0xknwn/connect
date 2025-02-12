@@ -27,13 +27,10 @@ export const sign = async (signingKey: CryptoKey, message: string) => {
 export const channelUniqueKeys = async (relyingParty: string, key: string) => {
   const enc = new TextEncoder();
   const root = enc.encode(`${key}`);
-  const material = await subtle.importKey(
-    "raw",
-    root,
-    "HKDF",
-    false,
-    ["deriveBits", "deriveKey"]
-  );
+  const material = await subtle.importKey("raw", root, "HKDF", false, [
+    "deriveBits",
+    "deriveKey",
+  ]);
   const unixtimestamp = Math.floor(Date.now() / 30000) * 30;
 
   const output1 = await subtle.deriveBits(
@@ -50,7 +47,7 @@ export const channelUniqueKeys = async (relyingParty: string, key: string) => {
   const output2 = await subtle.deriveBits(
     {
       name: "HKDF",
-      salt: enc.encode(String(unixtimestamp)),
+      salt: enc.encode(String(unixtimestamp + 30)),
       info: new TextEncoder().encode(`${relyingParty}`),
       hash: "SHA-256",
     },

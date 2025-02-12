@@ -15,6 +15,7 @@ import {
   channelUniqueKeys,
   queryMessagesResult,
   verify,
+  hex2buf,
 } from "@0xknwn/connect-api";
 import "dotenv/config";
 
@@ -144,10 +145,12 @@ const accChannel = async (
   };
 };
 
+const isReceived: { [nonce: string]: boolean } = {};
+
 const query = async (
   relyingParty: string,
   channelID: string,
-  publicKey: CryptoKey,
+  remotePublicKey: CryptoKey,
   deadline: number
 ) => {
   while (Math.floor(Date.now() / 1000) < deadline) {
@@ -171,13 +174,22 @@ const query = async (
     }
     const result = payload.result as queryMessagesResult;
     if (Array.isArray(result.messages)) {
+      let found = false;
       for (let [idx, _] of result.messages.entries()) {
         const message = result.messages[idx];
         const signature = result.messageSignatures[idx];
-        const verified = await verify(publicKey, message, signature);
+        const verified = await verify(remotePublicKey, message, signature);
+        const jsonMessage = JSON.parse(message);
+        if (isReceived[jsonMessage.nonce]) {
+          continue;
+        }
+        found = true;
+        isReceived[jsonMessage.nonce] = true;
+        console.log("");
         console.log("message:", message);
         console.log("verified:", verified);
       }
+      if (!found) process.stdout.write(".");
     }
     await sleep(5000);
   }
@@ -201,7 +213,13 @@ const main = async () => {
     signerAccountID,
     deadline,
   } = output;
-
+  const remotePublicKey = await subtle.importKey(
+    "raw",
+    hex2buf(agentPublicKey),
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["verify"]
+  );
   const fourDigitPin = String(Math.floor(Math.random() * 10000)).padStart(
     4,
     "0"
@@ -220,10 +238,10 @@ const main = async () => {
     console.error("Failed to accept channel request");
     return;
   }
-  const { publicKey, privateKey, channelID, encryptionKey } = accOutput;
+  const { channelID } = accOutput;
   console.log("channelID:", channelID);
 
-  await query(relyingParty, channelID, publicKey, deadline);
+  await query(relyingParty, channelID, remotePublicKey, deadline);
 };
 
 main();

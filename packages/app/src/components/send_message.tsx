@@ -7,13 +7,17 @@ function SendMessage() {
   const url = "/api";
   const relyingParty = window.location.hostname;
 
-  const message = `{"hello":"world"}`;
   const submit = async () => {
-    const messageSignature = await sign(message);
+    const message = {
+      message: "hello world",
+      nonce: Math.floor(Math.random() * 1000000).toString(),
+    };
+    const content = JSON.stringify(message);
+    const messageSignature = await sign(content);
     const keys = await channelUniqueKeys(relyingParty, channelID);
     const response = await submitMessage(url, 3, {
       channelUniqueKeys: keys,
-      message,
+      message: content,
       messageSignature,
     });
     if (response.status !== 200) {
