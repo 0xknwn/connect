@@ -144,6 +144,46 @@ const accChannel = async (
   };
 };
 
+const query = async (
+  relyingParty: string,
+  channelID: string,
+  publicKey: CryptoKey,
+  deadline: number
+) => {
+  while (Math.floor(Date.now() / 1000) < deadline) {
+    const keys = await channelUniqueKeys(relyingParty, channelID);
+    const response = await queryMessages(baseURL, 1, {
+      channelUniqueKeys: keys,
+    });
+    if (!response.ok) {
+      console.error(await response.json());
+      return;
+    }
+    const payload = await response.json();
+    if (payload.error && payload.error.code === -32003) {
+      process.stdout.write(".");
+      await sleep(5000);
+      continue;
+    }
+    if (payload.error) {
+      console.error(payload.error);
+      return;
+    }
+    const result = payload.result as queryMessagesResult;
+    if (Array.isArray(result.messages)) {
+      for (let [idx, _] of result.messages.entries()) {
+        const message = result.messages[idx];
+        const signature = result.messageSignatures[idx];
+        const verified = await verify(publicKey, message, signature);
+        console.log("message:", message);
+        console.log("verified:", verified);
+      }
+    }
+    await sleep(5000);
+  }
+  console.log("Deadline reached, channel has expired");
+};
+
 const main = async () => {
   console.log("Starting...");
   const sixDigitPin = await ask6DigitPin();
@@ -182,39 +222,8 @@ const main = async () => {
   }
   const { publicKey, privateKey, channelID, encryptionKey } = accOutput;
   console.log("channelID:", channelID);
-  // console.log("ok:", publicKey, privateKey, channelID, encryptionKey);
 
-  // for (let i = 0; i < 30; i++) {
-  //   const keys = await channelUniqueKeys(relyingParty, channelID);
-  //   const response = await queryMessages(baseURL, 1, {
-  //     channelUniqueKeys: keys,
-  //   });
-  //   if (!response.ok) {
-  //     console.error(await response.json());
-  //     return;
-  //   }
-  //   const payload = await response.json();
-  //   if (payload.error && payload.error.code === -32001) {
-  //     process.stdout.write(".");
-  //     await sleep(5000);
-  //     continue;
-  //   }
-  //   if (payload.error) {
-  //     console.error(payload.error);
-  //     return;
-  //   }
-  //   console.log("");
-  //   const result = payload.result as queryMessagesResult;
-  //   if (Array.isArray(result.messages)) {
-  //     for (let [idx, _] of result.messages.entries()) {
-  //       const message = result.messages[idx];
-  //       const signature = result.messageSignatures[idx];
-  //       const verified = await verify(publicKey, message, signature);
-  //       console.log("message:", message);
-  //       console.log("verified:", verified);
-  //     }
-  //   }
-  // }
+  await query(relyingParty, channelID, publicKey, deadline);
 };
 
 main();
