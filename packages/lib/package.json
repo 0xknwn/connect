@@ -1,7 +1,7 @@
 {
   "name": "@0xknwn/connect-core",
   "private": false,
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "@0xknwn/connect javascript library",
   "type": "module",
   "module": "./src/index.js",
@@ -22,7 +22,6 @@
   "author": "0xknwn",
   "license": "MIT",
   "devDependencies": {
-    "@0xknwn/connect-ui": "^0.0.11",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",

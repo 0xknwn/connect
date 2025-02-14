@@ -1,7 +1,7 @@
 {
   "name": "@0xknwn/connect",
   "private": false,
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Connect Dapps to the 0xknwn/signer",
   "main": "index.js",
   "scripts": {
