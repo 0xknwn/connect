@@ -2,7 +2,7 @@ import { submitMessage, channelUniqueKeys } from "@0xknwn/connect-api";
 import { useAuthn } from "./authn_context";
 
 function SendMessage() {
-  const { channelID, sign } = useAuthn();
+  const { channelID, sign, reset } = useAuthn();
 
   const url = "/api";
   const relyingParty = window.location.hostname;
@@ -42,6 +42,13 @@ function SendMessage() {
             }}
           >
             submit
+          </button>
+          <button
+            onClick={() => {
+              reset();
+            }}
+          >
+            Reset Channel
           </button>
         </>
       )}
