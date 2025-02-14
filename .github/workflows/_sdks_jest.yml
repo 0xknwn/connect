@@ -30,6 +30,7 @@ jobs:
 
       - name: build the project
         run: |
+          npm run build -w @0xknwn/connect-api
           npm run build -w @0xknwn/connect-ui
           npm run build -w @0xknwn/connect-core
 

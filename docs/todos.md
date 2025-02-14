@@ -1,1 +1,0 @@
-- [ ] @todo: split encryptionkey into sharing/encryption keys
