@@ -27,6 +27,7 @@ export const AuthnContext = createContext<{
   sign: (message: string) => Promise<string>;
   encrypt: (data: string) => Promise<string>;
   decrypt: (message: string) => Promise<string>;
+  reset: () => void;
 }>({
   accountAddress: "0x0",
   remoteAccountID: "0x0",
@@ -48,6 +49,7 @@ export const AuthnContext = createContext<{
   sign: async () => "",
   encrypt: async () => "",
   decrypt: async () => "",
+  reset: () => {},
 });
 
 export const useAuthn = () => {

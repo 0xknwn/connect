@@ -59,6 +59,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const [channelState, setChannelState] = useState(ChannelState.initial);
 
+  const reset = async () => {
+    setRemotePublicKey(null);
+    setRemoteSharingPublicKey(null);
+    setRemoteAccountAddress("0x0");
+    setEncryptedChannelIdentifier("");
+    setChannelIdentifierSignature("");
+    setChannelID("");
+    setEncryptionKey(null);
+    setChannelState(ChannelState.initial);
+  };
+
   useEffect(() => {
     const init = async () => {
       if (
@@ -390,6 +401,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     sign,
     encrypt,
     decrypt,
+    reset,
   };
 
   return (
