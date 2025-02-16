@@ -10,10 +10,18 @@ rm -rf package-lock.json node_modules
 npm install --ignore-scripts -ws
 ````
 
-And then rebuild the projects that needs to be released
+-  rebuild the projects that needs to be released
 
 ```shell
 npm run build -w @0xknwn/connect-api
 npm run build -w @0xknwn/connect-ui
 npm run build -w @0xknwn/connect-core
+```
+
+- publish the projects
+
+```shell
+npm publish --access=public -w @0xknwn/connect-api
+npm publish --access=public -w @0xknwn/connect-ui
+npm publish --access=public -w @0xknwn/connect-core
 ```

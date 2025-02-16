@@ -25,7 +25,7 @@ function AcknowledgeChannel() {
 
   useEffect(() => {}, []);
 
-  const url = "/api";
+  const url = "/api/api";
   const relyingParty = window.location.hostname;
 
   const request = async () => {
@@ -79,6 +79,7 @@ function AcknowledgeChannel() {
       setRemoteAccountAddress(signerAccountAddress);
       setEncryptedChannelIdentifier(encryptedChannelIdentifier);
       setChannelIdentifierSignature(channelIdentifierSignature);
+      setPin("");
       return;
     }
     console.error("channel acknowledged failed", output);

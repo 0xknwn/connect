@@ -4,7 +4,7 @@ import { useAuthn } from "./authn_context";
 function SendMessage() {
   const { channelID, sign, reset } = useAuthn();
 
-  const url = "/api";
+  const url = "/api/api";
   const relyingParty = window.location.hostname;
 
   const submit = async () => {

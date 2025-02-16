@@ -19,7 +19,7 @@ function SubmitChannelRequest() {
     setChannelState,
   } = useAuthn();
   const [pin, _] = useState("123456");
-  const url = "/api";
+  const url = "/api/api";
   const relyingParty = window.location.hostname;
 
   const request = async () => {
