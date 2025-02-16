@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
 
-const baseURL = "/api/api";
+const baseURL = import.meta.env.VITE_API_BASE_URL || "/api/api";
 
 import { loadKeys } from "./loadkeys";
 import {
