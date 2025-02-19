@@ -22,7 +22,7 @@ const payload = {
   id: 1,
 };
 
-const data = await fetch("/api/rpc", 
+const data = await fetch("/api/sepolia", 
   { method: "POST", body: JSON.stringify(payload), headers: {"Content-type": "application/json"}}
 )
 

@@ -3,8 +3,14 @@ import SubmitChannelRequest from "./components/submit_channel_request";
 import AcknowledgeChannel from "./components/acknowledge_channel";
 import SendMessage from "./components/send_message";
 import { AuthProvider } from "./components/authn";
+import { injectSmartr } from "@0xknwn/connect-core";
+import { useEffect } from "react";
 
-function App() {
+const App = () => {
+  useEffect(() => {
+    injectSmartr();
+  });
+
   return (
     <>
       <h1>API Interactions</h1>
@@ -15,6 +21,6 @@ function App() {
       </AuthProvider>
     </>
   );
-}
+};
 
 export default App;
