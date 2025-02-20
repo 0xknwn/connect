@@ -1,12 +1,13 @@
-import { StarknetWindowObject } from "@starknet-io/types-js";
+import { WALLET_API } from "@starknet-io/types-js";
+import { handleMessage } from "./methods";
 
 declare global {
   interface Window {
-    starknet_smartr: StarknetWindowObject;
+    starknet_smartr: WALLET_API.StarknetWindowObject;
   }
 }
 
-export class SmartrWindowObject implements StarknetWindowObject {
+export class SmartrWindowObject implements WALLET_API.StarknetWindowObject {
   readonly id: string = "smartR";
   readonly version: string = "0.0.1";
   readonly icon: string =
@@ -17,13 +18,11 @@ export class SmartrWindowObject implements StarknetWindowObject {
   // off = (event: string, callback: (data: any) => void) => {};
   on = () => {};
   off = () => {};
-  constructor(provider: any) {
-    this.request = async (request: any) => {
-      return provider.request(request);
-    };
+  constructor() {
+    this.request = handleMessage;
   }
 }
 
 export const injectSmartr = () => {
-  window.starknet_smartr = new SmartrWindowObject({});
+  window.starknet_smartr = new SmartrWindowObject();
 };
